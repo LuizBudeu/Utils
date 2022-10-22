@@ -1,0 +1,144 @@
+{%  extends 'app/main.html' %}
+
+{% load widget_tweaks %}
+
+{% load static %}
+
+{% block content %}
+
+<br>
+<div class="row">
+    <div class="col">
+        <div class="card card-body">
+            <form method="get">
+                <div class="form-row">
+                    <div class="form-group col-sm-1 col-md-1">
+                      {{ jobs_filter.form.code.label_tag }}
+                      {% render_field jobs_filter.form.code class="form-control" %}
+                    </div>
+
+                    <div class="form-group col-sm-4 col-md-4">
+                      {{ jobs_filter.form.dag_id.label_tag }}
+                      {% render_field jobs_filter.form.dag_id class="form-control" %}
+                    </div>
+
+                    <div class="form-group col-sm-4 col-md-4">
+                      {{ jobs_filter.form.run_id.label_tag }}
+                      {% render_field jobs_filter.form.run_id class="form-control" %}
+                    </div>
+                </div>
+
+                <div class="form-row" style="position:relative">
+                    <div class="form-group col-sm-2 col-md-3">
+                      {{ jobs_filter.form.start_date.label_tag }}
+                      {% render_field jobs_filter.form.start_date class="form-control" %}
+                    </div>
+
+                    <div class="form-group col-sm-2 col-md-3">
+                      {{ jobs_filter.form.end_date.label_tag }}
+                      {% render_field jobs_filter.form.end_date class="form-control" %}
+                    </div>
+
+                    <button class="btn btn-primary" type="submit" style="height:40px;width:90px;position:relative;top:30px;">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Jobs</h5>
+        </div>
+        <div class="card card-body">
+            <table class="table">
+                <tr>
+                    <th>Code</th>
+                    <th>Dag Id</th>
+                    <th>Run Id</th>
+                    <th>Created At</th>
+                    <th># Jobs</th>
+                    <th># Failed Entries</th>
+                </tr>
+
+                    {% for code, code_obj in jobs.items %}
+                        {% for dag_id, dag_id_obj in code_obj.items %}
+                            {% for run_id, run_id_obj in dag_id_obj.items %}
+                                <tr>
+                                    <td style="background-color:
+                                        {% if code == 200 %}
+                                            {{colors.0}}
+                                        {% elif 201 <= code and code <= 205 %}
+                                            {{colors.1}}
+                                        {% elif code >= 600 and code <= 612 %}
+                                            {{colors.2}}
+                                        {% else %}
+                                            #ffffff
+                                        {% endif %}"
+
+                                        title="{{run_id_obj.title}}"
+                                       >{{code}}</td>
+                                    <td>{{dag_id}}</td>
+                                    <td>{{run_id}}</td>
+                                    <td>{{run_id_obj.created_at}}</td>
+                                    <td>
+                                        <a href="{% url 'job_details' dag_id run_id code %}">{{run_id_obj.jobs}}</a>
+                                    </td>
+                                    <td>
+                                        {% if run_id_obj.failed_entries > 0 %}
+                                            <a href="{% url 'failed_entries' dag_id run_id %}">{{run_id_obj.failed_entries}}</a>
+                                        {% else %}
+                                            {{run_id_obj.failed_entries}}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+              </table>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Failed task instances before execute - {{failed_before_execute.start_date}} / {{failed_before_execute.end_date}}</h5>
+        </div>
+
+        <div class="card card-body">
+            <table class="table">
+                <tr>
+                    <th>Dag Id</th>
+                    <th>Task Id</th>
+                    <th>Run Id</th>
+                    <th>Go to Task Instance</th>
+                </tr>
+
+                {% for fbe in failed_before_execute.list %}
+                    <tr>
+                        <td>{{fbe.dag_id}}</td>
+                        <td>{{fbe.task_id}}</td>
+                        <td>{{fbe.run_id}}</td>
+                        <td>
+                            <button class="btn btn-primary" type="submit" onclick="window.open(goToTaskJobs(`{{fbe.dag_id}}`, `{{fbe.run_id}}`, `{{fbe.task_id}}`), '_blank');"> Task Instance </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+              </table>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+    <script src="{% static 'javascript/extras.js' %}"></script>
+{% endblock scripts %}
+
+{% endblock content %}

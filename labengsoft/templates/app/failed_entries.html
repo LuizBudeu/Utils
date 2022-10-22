@@ -1,0 +1,54 @@
+{%  extends 'app/main.html' %}
+{% load extras %}
+
+{% block content %}
+{% load extras %}
+
+<br>
+<div class="row">
+	<div class="col">
+		<div class="card card-body">
+			<form method="get">
+				{{failed_entries_filter.form}}
+
+				<button class="btn btn-primary" type="submit">
+					Search
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Failed Entries - {{args.0}} - {{args.1}}</h5>
+		</div>
+		<div class="card card-body">
+			<table class="table">
+				<tr>
+					<th>Job Id</th>
+					<th>Task Id</th>
+					<th>Input</th>
+					<th>Data</th>
+					<th>Info</th>
+				</tr>
+
+					{% for job_id, l in failed_entries.items %}
+						{% for obj in l %}
+							<tr>
+								<td>{{job_id}}</td>
+								<td>{{obj.task_id}}</td>
+								<td style="max-width: 400px"><pre class="pre-scrollable"> {{obj.input | pretty_json}} </pre></td>
+								<td style="max-width: 500px"><pre class="pre-scrollable"> {{obj.data | pretty_json}} </pre></td>
+								<td>{{obj.info}}</td>
+							</tr>
+						{% endfor %}
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+</div>
+{% endblock content %}

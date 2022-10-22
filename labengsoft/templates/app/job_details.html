@@ -1,0 +1,69 @@
+{%  extends 'app/main.html' %}
+
+{% load static %}
+{% load extras %}
+
+{% block content %}
+
+<br>
+<div class="row">
+	<div class="col">
+		<div class="card card-body">
+			<form method="get">
+				{{job_details_filter.form}}
+
+				<button class="btn btn-primary" type="submit">
+					Search
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Job Details - {{args.dag_id}} - {{args.run_id}} - Code {{args.code}}</h5>
+		</div>
+		<div class="card card-body">
+			<table class="table">
+				<tr>
+					<th>Job Id</th>
+					<th>Task Id</th>
+					<th>Input</th>
+					<th>Go to Log</th>
+					<th>Go to Task Instance</th>
+				</tr>
+
+				{% for job_id, l in job_details.items %}
+					{% for obj in l %}
+						<tr>
+							<td>{{job_id}}</td>
+							<td id="task_id">{{obj.task_id}}</td>
+							<td style="max-width: 400px"><pre class="pre-scrollable"> {{obj.input | pretty_json}} </pre></td>
+							<td>
+								<button class="btn btn-primary" type="submit" onclick="window.open(goToLog({{args}}), '_blank');">Log</button>
+							</td>
+							<td>
+								<button class="btn btn-primary" type="submit" onclick="window.open(goToTaskJobDetails({{args}}), '_blank');">Task Instance</button>
+							</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+</div>
+
+
+
+{% block scripts %}
+	<script src="{% static 'javascript/extras.js' %}"></script>
+{% endblock scripts %}
+
+
+
+{% endblock content %}
